@@ -1,0 +1,97 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{dsfont}
+\usepackage{amsfonts}
+\newcommand{\brendan}[1]{\textcolor{green}{#1}}
+\newcommand{\real}{\mathbb{R}}
+\newcommand{\states}{\mathcal{S}}
+\newcommand{\actions}{\mathcal{A}}
+\title{RoVA: A Method for Robust Value Approximation}
+\author{Colin R. Small, \\ Brendan J. Crowe}
+\date{April 2021}
+
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+COVID-19 policy response can be modeled as a control problem: a government (the actor) observes the spread of the disease throughout its population (the state) and implements mandates, lockdowns, and other means of controlling the spread of the disease (the action and the policy). However, optimizing such a policy in a reinforcement learning setting is an inherently difficult problem. High dimensionality of underlying, policy-relevant data (including, but certainly not limited to, the number of infected, exposed, dead, and recovered individuals), makes solving of the problem's value function through traditional methods (e.g. dynamic programming) computationally infeasible. This publicly-available policy-relevant data is often incomplete, inaccurate, and insufficiently covers the state space of our COVID-response control problem to enable the solving of a value function. 
+
+There are, however, ways to combat each of these problems. Approximate linear programming~(ALP) solves the curse of dimensionality by approximating a value function given a subset of real, observed states and their rewards. However, such an approximated value function is beholden to the accuracy of the observed states used to create it and thus is not robust with regard to uncertainty in these states (such as the inaccuracy of COVID data reporting). Optimizing safe policies in the face of uncertainty in rewards and states can be accomplished with methods such as Bayesian Robust Optimization for Imitation Learning~(BROIL)\cite{brown2020bayesian}, but such approaches require knowing a set of already-solved reward functions. In our COVID-response control problem, we have neither an already-solved reward function nor trust in the publicly available data used to approximate one.
+
+To the best of our knowledge, we unaware of any efficient methods that combine solutions to these two problems. Thus, we present Robust Value Approximate (RoVA), a method for robust value function approximation. 
+
+\subsection{ALP}
+
+As introduced in the previous section, ALP can be a useful tool for solving reinforcement learning problems when a tabular MDP formulation of the problem is incomplete or infeasible to solve.
+
+This is achieved by approximating the value function $v(s)$ of the problem with a set of state features $\Phi$ and corresponding feature weights $w$. This grants the modeler a much larger degree of flexibility and poses a much easier problem to solve as compared with a tabular MDP. where we fit weights to best approximate a known set of values rather than solving the value function of every possible state directly.
+
+The linear program begin solved is:
+
+\begin{equation}
+\begin{aligned}
+\min_{w} \quad &c^T\Phi w\\
+\text{s.\,t.}\quad & (I - \gamma P_i) \quad \Phi \ge r_{i} \, i=1,\ldots,A
+\end{aligned}
+\end{equation}
+
+Here, we define $c$ to be the distribution over starting states, $\gamma$ is the discount rate, $P_i, r_i$ are the transition probabilities and reward for each action $i$, and $A = |\mathcal{A}|$ where $\mathcal{A}$ is the action space.
+
+As may be obvious, this formulation works in the reinforcement learning paradigm is which the reward function $r(s,a)$ is known.
+
+For our problem, we have a large degree of uncertainty in our known reward function we are attempting to approximate. In practive, We may have have some set of candidate reward functions or a distribution over reward functions, but the true reward function is unknown. 
+
+For this reason, the problem we are actually trying to solve is an Inverse Reinforcement Learning~(IRL) problem, which brings us BROIL\cite{brown2020bayesian}.
+
+\subsection{BROIL}
+
+BROIL is an IRL method that allows for robust optimization over over a set of possible reward functions. This is precisely what we wish to solve within our problem.
+
+However the formulation of BROIL explicitly outlined within the paper assumes a tabular MDP. The problem being solved can be written as the following linear program:
+
+\begin{equation}
+\begin{aligned}
+\min_{u\in \real^{\states, \actions}} \quad &p^T_{R} \rho(\pi, R)\\
+\operatorname{s.\,t.}\quad & \sum_{a\in \actions}(I - \gamma P^T_{a})u^a = p_0\\
+& u \ge 0
+\end{aligned}
+\end{equation}
+
+\subsection{RoVA}
+
+Our goal to to unify the ideas briefly presented in ALP and BROIL. In doing so we hope to obtain, through solving a linear program, a flexible value function approximated policy that is robust to the worst case reward in a set of reward functions.
+
+We solve:
+
+\begin{equation}
+\begin{aligned}
+\max_{u, z}\quad & z\\
+\text{s.\,t.} \quad & z \le r^T u \quad r \in R\\
+& \Phi^T A u = \Phi^t c\\
+& u \ge 0
+\end{aligned}
+\end{equation}
+
+Or its dual
+
+\begin{equation}
+\begin{aligned}
+\min_{w, \xi} \quad & c^T\Phi w\\
+\text{s.\,t.} \quad & A \Phi w \ge \hat{\Phi}\Tilde{R}\xi\\
+& \mathds{1}^T\xi = 1\\
+& \xi \ge 0
+\end{aligned}
+\end{equation}
+
+\subsection{Derivation of the Primal and Dual}
+
+\bibliography{references}
+\end{document}

@@ -1,0 +1,110 @@
+\documentclass{homework}
+\usepackage[utf8]{inputenc}
+
+
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{dsfont}
+\usepackage{biblatex}
+
+\newcommand{\brendan}[1]{\textcolor{green}{#1}}
+\newcommand{\real}{\mathbb{R}}
+\newcommand{\states}{\mathcal{S}}
+\newcommand{\actions}{\mathcal{A}}
+\newcommand{\rewards}{\mathcal{R}}
+\bibliography{references}
+
+
+\title{Approximate Robust Linear Programming}
+\author{Brendan J. Crowe}
+\date{May 2021}
+
+
+\begin{document}
+
+\maketitle
+
+\section{Backround}
+
+In the Inverse Reinforcement Learning~(IRL) setting an optimizer is trying to solve a Markov Decision Process~(MDP) where there is an unknown or ambiguous reward function. An MDP can be defined as a tuple $(\states, \actions, \rewards, P_0, T(a,s))$. In the Reinforcement Learning~(RL) for a tabular (fully represented) MDP the objective is to find a policy $\pi^{\star}$ that maximizes the expected discounted reward $\sum_{s \in \states} \rho(s, \pi^{\star}(s))$. However in many cases there is no tabular representation for the MDP causing the need for approximations. An additional concern comes when there is ambiguity in the reward function, which is where IRL comes in. In the next sections we discuss how one can solve these problems.
+\section{ALP}
+
+When an MDP has no complete tabular representation, but the reward function $r(a,s) \quad r \in \rewards$ is know, one can approximate the value function $v(s)$, or q-functions $q(a,s)$ using state or state-action features respectively, that encode information about the given state action pair, as well as its relationship to other state-action pairs. We can approximate $v(\states) \approx \Phi w$, where $\Phi$ are the state features, and $w$ are weights to be learned. Now the MDP can be solved with the following linear program, as proposed in Approximate Linear Programming~(ALP)\cite{10.1287/opre.51.6.850.24925}
+
+\begin{equation}
+\begin{aligned}
+\min_{w} \quad &c^T\Phi w\\
+\text{s.\,t.}\quad & (\mathds{I} - \gamma P_a) \Phi \ge r_{a} \quad a=1,\ldots,A
+\end{aligned}
+\end{equation}
+
+Here, $c = P_0$ is the distributions over initial state-actions pairs, $\gamma$ is the discount rate, $P_a, r_a$ are the transition probabilities and reward for each action $a$, and $A = |\actions|$ where $\actions$.
+
+\section{BROIL}
+
+When the reward function is unknown, but we have a tabular MDP, we want to find a $r^{\star} \in \rewards$ that is feasible for our MDP, and induces a good policy $\pi^{\star}$ on average. This is IRL, and it too can be posed as an optimization problem. Bayesian Robust Optimization for Imitation Learning~(BROIL)\cite{brown2020bayesian}. As simplified version of the linear program solved in BROIL is as follows 
+
+\begin{equation}
+\begin{aligned}
+\max_{u\in \real^{\states \times \actions}} \min_{r \in \rewards}\quad &r^T u\\
+\text{s.\,t.}\quad & Au = c\\
+& u \ge 0\\
+\end{aligned}
+\end{equation}
+
+Here 
+$$A = \begin{bmatrix}\mathds{I} - \gamma P_a \\ \vdots \\ \mathds{I} - \gamma P_A\end{bmatrix}$$
+$u$ is the state-action occupancy frequencies
+
+\section{ARLP}
+
+We want to extend BROIL to be able to deal with none tabular MDPs, and thus we want to approximate the state-actions pairs using features as in ALP. That gives us the following problem.
+
+\begin{equation}
+\begin{aligned}
+\max_{u}\min_{i=1,\ldots, n} \quad & \Tilde{r}_i^T\Phi^T u\\
+\text{s.\,t.} \quad & \Phi^T A u = \Phi^T c\\
+& u \ge 0
+\end{aligned}
+\end{equation}
+
+Where $\Tilde{r}_i$ are some reward features, each corresponding to possible reward function.
+
+The corresponding linear program would be
+
+\begin{equation}
+\begin{aligned}
+\max_{u, z}\quad & z\\
+\text{s.\,t.} \quad & z \le \Tilde{r}_i^T\Phi^T  u \quad i=1,\ldots,n\\
+& \Phi^T A u = \Phi^T c\\
+& u \ge 0
+\end{aligned}
+\end{equation}
+
+Or its dual
+
+\begin{equation}
+\begin{aligned}
+\min_{w, \xi} \quad & c^T\Phi w\\
+\text{s.\,t.} \quad & A \Phi w \ge \hat{\Phi}\Tilde{R}\xi\\
+& \mathds{1}^T\xi = 1\\
+& \xi \ge 0
+\end{aligned}
+\end{equation}
+
+Here 
+$$\hat{\Phi} = \begin{bmatrix}\Phi_1 & \cdots & 0 & \cdots & 0 \\ \vdots &  \\ 0 & & \ddots & & \vdots \\ \vdots \\ 0 & & \cdots && \Phi_A \end{bmatrix}$$
+and 
+$$\Tilde{R} = \begin{bmatrix}\Tilde{r_i}&\cdots&\Tilde{r_A}\end{bmatrix}$$
+Where all $\Phi_a = \Phi$\\
+$\xi$ is a weight for each reward function represented by $\hat{\Phi}\Tilde{R}$
+
+\section{Result}
+
+Do to the length of the write-up, I have omitted extensive discussion of the results. I have shown in some small examples that this method is capable to solving MDPs satisfactorily. More experiments are need to verify its true efficacy.
+\pagebreak
+
+
+\printbibliography
+\end{document}

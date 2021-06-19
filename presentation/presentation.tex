@@ -1,0 +1,263 @@
+\documentclass[9pt]{beamer}
+% Created By Gouthaman KG
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Use roboto Font (recommended)
+\usepackage[sfdefault]{roboto}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Define where theme files are located. ('/styles')
+\usepackage{styles/fluxmacros}
+\usefolder{styles}
+% Use Flux theme v0.1 beta
+% Available style: asphalt, blue, red, green, gray 
+\usetheme[style=asphalt]{flux}
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{booktabs}
+\usepackage[space]{grffile}
+\usepackage{bm}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{wrapfig}
+\usepackage{nicefrac}
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Extra packages for the demo:
+\usepackage{bm}
+\usepackage{subfig}
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{ragged2e}
+\usepackage{schemabloc}
+\usepackage{hyperref}
+\usepackage{amssymb}% http://ctan.org/pkg/amssymb
+\usepackage{pifont}% http
+
+\usebackgroundtemplate{
+\includegraphics[width=\paperwidth,height=\paperheight]{assets/background.jpg}}%change this to your preferred background for the presentation.
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+\usepackage{biblatex}
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+\usepackage{multimedia}
+\usepackage{graphicx}
+\usepackage{dsfont}
+\graphicspath{{./images/}}
+
+
+\newcommand{\data}{\mathcal{D}}
+\newcommand{\tr}{^\mathsf{T}}
+\DeclareMathOperator{\var}{VaR}
+\DeclareMathOperator{\alphavar}{VaR_\alpha}
+\DeclareMathOperator{\alphacvar}{CVaR_\alpha}
+%\DeclareMathOperator{\cvar}{AVaR}
+\DeclareMathOperator{\cvar}{CVaR}
+\newcommand{\Ex}{\mathbb{E}}
+\newcommand{\one}{\bm{1}}
+\newcommand{\zero}{\bm{0}}
+\newcommand{\eye}{\bm{I}}
+\newcommand{\R}{\bm{R}}
+\newcommand{\states}{\mathcal{S}}
+\newcommand{\actions}{\mathcal{A}}
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\opt}{^{\star}}
+\newcommand{\qb}{\bm{q}}
+\newcommand{\pb}{\bm{p}}
+\newcommand{\ub}{\bm{u}}
+\newcommand{\vb}{\bm{v}}
+\newcommand{\Pb}{\bm{P}}
+\newcommand{\mub}{\bm{\mu}}
+\newcommand{\psib}{\bm{\psi}}
+\newcommand{\rb}{\bm{r}}
+\newcommand{\wb}{\bm{w}}
+\newcommand{\PHI}{\bm{\Phi}}
+\renewcommand{\Pr}{\mathbb{P}}
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator{\subjectto}{subject\,to}
+
+\renewcommand{\mid}{\,\vert\,}
+
+\setlength{\tabcolsep}{2pt}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\marek}[1]{\textcolor{red}{[#1]}}
+
+\bibliographystyle{unsrt}
+\bibliography{demo}
+% Informations
+\title{\parbox{\linewidth}{\centering Approximate Robust \\Inverse Reinforcement Learning}}
+%\subtitle{Union of ALP and BROIL}
+
+\author{Brendan Crowe}
+
+\titlegraphic{assets/unhseal_rgb.png} %change this to your preferred logo or image(the image is located on the top right corner).
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+\begin{document}
+
+% Generate title page
+\titlepage
+
+% \begin{frame}{Imitation Learning}
+% \textbf{General Definition:} Imitation learning (IL) techniques aim to mimic human behavior in a given task. An agent (a learning machine) is trained to perform a task from demonstrations by learning a mapping between observations and actions.\cite{10.1145/3054912}
+% \vfill
+% \begin{itemize}
+%     \item<2-> In our context -- Inverse RL 
+% \end{itemize}
+% \end{frame}
+
+
+\begin{frame}{Reinforcement Learning}
+% \textbf{Definition} Inverse reinforcement learning
+% (IRL) is an approach to imitation learning in which the learning agent seeks to recover the reward function of the demonstrator.\cite{brown2020bayesian}
+% \vfill
+\begin{itemize}
+    \item<1-> \textbf{Reinforcement learning~(RL)} is an area of machine learning concerned with how intelligent agents ought to take actions in an environment in order to maximize the notion of cumulative reward. \cite{enwiki:1019990151}
+    \vfill
+    \item <2-> The optimizer knows that reward function $r$
+    \vfill
+    \item <3-> The optimizer wants to find the policy $\pi^{\star} \in \Pi$
+    \vfill
+    \item <4-> Example: AlphaGO
+    \vfill
+\end{itemize}
+\end{frame}
+\begin{frame}{Inverse Reinforcement Learning}
+% \textbf{Definition} Inverse reinforcement learning
+% (IRL) is an approach to imitation learning in which the learning agent seeks to recover the reward function of the demonstrator.\cite{brown2020bayesian}
+% \vfill
+\begin{itemize}
+    \item<1-> \textbf{Inverse Reinforcement Learning~(IRL):} Does not assume that the reward function $r$ is known, instead the goal is to find a reward function that best explains some expert data.
+    \item<2-> The optimizer has data $\data$ that shows the tasks being done (hopefully) optimally 
+    \item <3->The optimizer wants to find a reward function $r^{\star} \in R$ that best explains $\data$ and produces a good policy $\pi^{\star}$
+    \item <4->Example: Teaching a self driving car using data collected from people driving in the real world
+\end{itemize}
+\end{frame}
+
+\begin{frame}{The Problem}
+    \begin{itemize}
+        \item Infinite number of reward functions that fit the data
+        \vfill
+        \item The goal is to be able to find a policy that does well for the worst-case reward function
+        \vfill
+        \item We can deal with this uncertainty using robust optimization
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{The optimization }
+\begin{equation}
+\begin{aligned}
+\max_{u} \min_{r} \quad & r^Tu \\
+s.\,t.\quad & A^T u = c \\
+& u \ge 0 \quad \quad\cite{brown2020bayesian}
+\end{aligned}
+\end{equation}
+\end{frame}    
+
+
+
+
+\begin{frame}{The optimization}
+    \begin{equation}
+\begin{aligned}
+\max_{u,z}\quad & z \\
+s.\,t.\quad & A^T u = c \\
+&z \le r^Tu \quad r \in R \\
+& u \ge 0\quad \quad \cite{brown2020bayesian}
+\end{aligned}
+\end{equation}
+
+
+\begin{itemize}
+    \item $R$: a set of possible reward functions
+    \item $u$: the occupancy for each state-action pair
+    \item $A = \begin{bmatrix}I - \gamma P_a\\ \vdots \end{bmatrix}$
+    \item $P_a$: probability of transitioning from one state to the next given an action
+    \item $0 \le \gamma \le 1$: discount rate (a constant)
+    \item $c$: the distribution over starting states-actions
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Limitations}
+\begin{itemize}
+    \item This requires all states to be known
+    \vfill
+    \item Not feasible for large problems
+    \vfill
+    \item Not flexible
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Approximation}
+\begin{itemize}
+\item The solution: approximation
+\vfill
+\item Use linear features $\PHI$ that approximate the states
+\vfill
+\item Generalizes to states we haven't seen
+\end{itemize}
+\end{frame}
+
+\begin{frame}{The primal}
+\begin{equation}
+\begin{aligned}
+\max_{u,z}\quad & z \\
+s.\,t.\quad & \PHI A^T u = \PHI c \\
+&z \le r^Tu \quad r \in R \\
+& u \ge 0
+\end{aligned}
+\end{equation}
+
+What's going on??
+\end{frame}
+
+\begin{frame}{The dual}
+\begin{equation}
+\begin{aligned}
+\min_{w, \xi}\quad & c^T \PHI w \\
+s.\,t.\quad & \PHI A^T w \ge \hat{\PHI} \Tilde{R} \xi \\
+& \mathds{1}^T \xi = 1 \\
+& \xi \ge 0
+\end{aligned}
+\end{equation}
+
+\centering
+\begin{itemize}
+    \item $\PHI w \approx v$: represents the value of being at each state
+    \item $\PHI \in \Real^{n\times m}$: a features matrix that is number of observed states $\times$ number of features 
+    \item $\hat{\PHI} = \begin{bmatrix}\PHI & 0 \\ 0 & \PHI \end{bmatrix}$
+    \item $\Tilde{R}$: weights that describe inform a reward function $\hat{\PHI} \Tilde{R} \approx R$
+    \item $\xi$: a weight for each possible reward function in $\hat{\PHI}\Tilde{R}$
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+
+\begin{frame}{Citations}
+ \printbibliography
+   
+\end{frame}
+    
+
+
+\end{document}
